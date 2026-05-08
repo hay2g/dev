@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <title>App Papa</title>
+</head>
+<body>
+
+  <!-- PAGE ACCUEIL -->
+  <div id="home" class="page">
+    <header class="app-header">
+      <div class="logo">📖</div>
+      <h1 class="app-title">Mon Agenda</h1>
+    </header>
+
+    <div class="sections-grid">
+      <div class="section-card" data-id="quotidien" data-name="🏠 Vie quotidienne">
+        <span class="card-icon">🏠</span>
+        <span class="card-name">Vie quotidienne</span>
+        <span class="card-count" id="count-quotidien">0 rappel</span>
+      </div>
+      <div class="section-card" data-id="travail" data-name="💼 Travail">
+        <span class="card-icon">💼</span>
+        <span class="card-name">Travail</span>
+        <span class="card-count" id="count-travail">0 rappel</span>
+      </div>
+      <div class="section-card" data-id="projets" data-name="📋 Projets">
+        <span class="card-icon">📋</span>
+        <span class="card-name">Projets</span>
+        <span class="card-count" id="count-projets">0 rappel</span>
+      </div>
+      <div class="section-card" data-id="relations" data-name="👥 Relations">
+        <span class="card-icon">👥</span>
+        <span class="card-name">Relations</span>
+        <span class="card-count" id="count-relations">0 rappel</span>
+      </div>
+      <div class="section-card" data-id="divers" data-name="📦 Divers">
+        <span class="card-icon">📦</span>
+        <span class="card-name">Divers</span>
+        <span class="card-count" id="count-divers">0 rappel</span>
+      </div>
+      <div class="section-card" data-id="alire" data-name="📖 À lire tous les jours">
+        <span class="card-icon">📖</span>
+        <span class="card-name">À lire tous les jours</span>
+        <span class="card-count" id="count-alire">0 rappel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE SECTION (liste des rappels) -->
+  <div id="section-view" class="page hidden">
+    <div class="section-view-header">
+      <button id="back-btn" class="back-btn">← Retour</button>
+      <h2 id="section-view-title"></h2>
+    </div>
+    <div id="rappels-list" class="rappels-list"></div>
+  </div>
+
+  <!-- MODAL DÉTAIL RAPPEL -->
+  <div id="rappel-modal" class="rappel-modal hidden">
+    <div class="rappel-modal-content">
+      <button id="close-modal-btn" class="close-modal-btn">✕</button>
+      <h3 id="modal-title"></h3>
+      <p id="modal-date" class="modal-date"></p>
+      <p id="modal-days" class="modal-days"></p>
+      <p id="modal-description" class="modal-description"></p>
+    </div>
+  </div>
+
+  <!-- MODAL AJOUT RAPPEL -->
+  <div id="add-modal" class="rappel-modal hidden">
+    <div class="rappel-modal-content">
+      <button id="close-add-btn" class="close-modal-btn">✕</button>
+      <h3>Nouveau rappel</h3>
+
+      <label class="form-label">Section</label>
+      <select id="add-section" class="form-input">
+        <option value="quotidien">🏠 Vie quotidienne</option>
+        <option value="travail">💼 Travail</option>
+        <option value="projets">📋 Projets</option>
+        <option value="relations">👥 Relations</option>
+        <option value="divers">📦 Divers</option>
+        <option value="alire">📖 À lire tous les jours</option>
+      </select>
+
+      <label class="form-label">Titre <span class="required">*</span></label>
+      <input id="add-titre" type="text" class="form-input" placeholder="Ex : Appeler le médecin" />
+
+      <label class="form-label">Description <span class="required">*</span></label>
+      <textarea id="add-description" class="form-input" rows="3" placeholder="Détails du rappel..."></textarea>
+
+      <label class="form-label">Date <span class="optional">(optionnel)</span></label>
+      <input id="add-date" type="date" class="form-input" />
+
+      <label class="form-label">Jours de la semaine <span class="optional">(optionnel)</span></label>
+      <div class="days-picker">
+        <button class="day-btn" data-day="Lun">Lun</button>
+        <button class="day-btn" data-day="Mar">Mar</button>
+        <button class="day-btn" data-day="Mer">Mer</button>
+        <button class="day-btn" data-day="Jeu">Jeu</button>
+        <button class="day-btn" data-day="Ven">Ven</button>
+        <button class="day-btn" data-day="Sam">Sam</button>
+        <button class="day-btn" data-day="Dim">Dim</button>
+      </div>
+
+      <button id="save-rappel-btn" class="save-btn">✅ Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- BOUTON + FLOTTANT -->
+  <button id="fab" class="fab">+</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
