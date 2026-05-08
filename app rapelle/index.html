@@ -6,52 +6,77 @@
   <meta name="theme-color" content="#0a0a0f" />
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
-  <title>App Papa</title>
+  <title>Mon Agenda</title>
 </head>
 <body>
 
   <!-- PAGE ACCUEIL -->
   <div id="home" class="page">
     <header class="app-header">
-      <div class="logo">📖</div>
+      <div class="logo-container">
+        <div class="logo-book">
+          <div class="book-spine"></div>
+          <div class="book-cover">
+            <div class="book-lines"></div>
+          </div>
+          <div class="book-glow"></div>
+        </div>
+      </div>
       <h1 class="app-title">Mon Agenda</h1>
     </header>
 
+    <button id="export-btn" class="export-btn">📊 Exporter en Excel</button>
+
     <div class="sections-grid">
-      <div class="section-card" data-id="quotidien" data-name="🏠 Vie quotidienne">
+      <div class="section-card" data-id="quotidien">
         <span class="card-icon">🏠</span>
         <span class="card-name">Vie quotidienne</span>
-        <span class="card-count" id="count-quotidien">0 rappel</span>
+        <span class="card-count" id="count-quotidien">Aucun rappel</span>
       </div>
-      <div class="section-card" data-id="travail" data-name="💼 Travail">
+      <div class="section-card" data-id="travail">
         <span class="card-icon">💼</span>
         <span class="card-name">Travail</span>
-        <span class="card-count" id="count-travail">0 rappel</span>
+        <span class="card-count" id="count-travail">Aucun rappel</span>
       </div>
-      <div class="section-card" data-id="projets" data-name="📋 Projets">
+      <div class="section-card" data-id="projets">
         <span class="card-icon">📋</span>
         <span class="card-name">Projets</span>
-        <span class="card-count" id="count-projets">0 rappel</span>
+        <span class="card-count" id="count-projets">Aucun rappel</span>
       </div>
-      <div class="section-card" data-id="relations" data-name="👥 Relations">
+      <div class="section-card" data-id="relations">
         <span class="card-icon">👥</span>
         <span class="card-name">Relations</span>
-        <span class="card-count" id="count-relations">0 rappel</span>
+        <span class="card-count" id="count-relations">Aucun rappel</span>
       </div>
-      <div class="section-card" data-id="divers" data-name="📦 Divers">
+      <div class="section-card" data-id="divers">
         <span class="card-icon">📦</span>
         <span class="card-name">Divers</span>
-        <span class="card-count" id="count-divers">0 rappel</span>
+        <span class="card-count" id="count-divers">Aucun rappel</span>
       </div>
-      <div class="section-card" data-id="alire" data-name="📖 À lire tous les jours">
+      <div class="section-card" data-id="alire">
         <span class="card-icon">📖</span>
         <span class="card-name">À lire tous les jours</span>
-        <span class="card-count" id="count-alire">0 rappel</span>
+        <span class="card-count" id="count-alire">Aucun rappel</span>
+      </div>
+      <div class="section-card" data-id="sport">
+        <span class="card-icon">🏋️</span>
+        <span class="card-name">Sport</span>
+        <span class="card-count" id="count-sport">Aucun rappel</span>
+      </div>
+      <div class="section-card" data-id="formation">
+        <span class="card-icon">🎓</span>
+        <span class="card-name">Formation</span>
+        <span class="card-count" id="count-formation">Aucun rappel</span>
+      </div>
+      <div class="section-card" data-id="zikr">
+        <span class="card-icon">🤲</span>
+        <span class="card-name">Zikr</span>
+        <span class="card-count" id="count-zikr">Aucun rappel</span>
       </div>
     </div>
   </div>
 
-  <!-- PAGE SECTION (liste des rappels) -->
+  <!-- PAGE SECTION -->
   <div id="section-view" class="page hidden">
     <div class="section-view-header">
       <button id="back-btn" class="back-btn">← Retour</button>
@@ -85,6 +110,9 @@
         <option value="relations">👥 Relations</option>
         <option value="divers">📦 Divers</option>
         <option value="alire">📖 À lire tous les jours</option>
+        <option value="sport">🏋️ Sport</option>
+        <option value="formation">🎓 Formation</option>
+        <option value="zikr">🤲 Zikr</option>
       </select>
 
       <label class="form-label">Titre <span class="required">*</span></label>
@@ -114,6 +142,7 @@
   <!-- BOUTON + FLOTTANT -->
   <button id="fab" class="fab">+</button>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

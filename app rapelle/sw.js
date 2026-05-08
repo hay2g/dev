@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agenda-papa-v1';
+const CACHE_NAME = 'agenda-baba-v1';
 const FILES = [
   '/',
   '/index.html',

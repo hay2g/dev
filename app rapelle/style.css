@@ -22,43 +22,132 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 17px;
   overflow-x: hidden;
 }
 
 /* ===== PAGES ===== */
 .page {
   min-height: 100vh;
-  padding: 24px 16px 100px;
+  padding: 24px 16px 120px;
 }
 
 .hidden { display: none !important; }
 
-/* ===== HEADER ===== */
+/* ===== LOGO LIVRE FUTURISTE ===== */
 .app-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 28px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
-.logo {
-  font-size: 2rem;
-  filter: drop-shadow(0 0 8px var(--accent));
+.logo-container {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-book {
+  position: relative;
+  width: 38px;
+  height: 44px;
+}
+
+.book-cover {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 32px;
+  height: 44px;
+  background: linear-gradient(135deg, #7c6cfc, #a89dff);
+  border-radius: 3px 8px 8px 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 6px;
+  box-shadow: 0 0 18px rgba(124,108,252,0.6);
+}
+
+.book-cover::before,
+.book-cover::after,
+.book-lines {
+  content: '';
+  display: block;
+  width: 70%;
+  height: 2px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+}
+
+.book-cover::after {
+  width: 50%;
+  align-self: flex-start;
+  margin-left: 4px;
+}
+
+.book-spine {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 8px;
+  height: 40px;
+  background: linear-gradient(180deg, #5a4de0, #7c6cfc);
+  border-radius: 3px 0 0 3px;
+  box-shadow: -2px 0 8px rgba(90,77,224,0.5);
+}
+
+.book-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,108,252,0.25) 0%, transparent 70%);
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
 }
 
 .app-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
   background: linear-gradient(135deg, var(--accent-light), #fff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
 }
 
-/* ===== GRILLE DES SECTIONS ===== */
+/* ===== BOUTON EXPORT ===== */
+.export-btn {
+  width: 100%;
+  background: rgba(124,108,252,0.1);
+  border: 1px solid rgba(124,108,252,0.3);
+  border-radius: 14px;
+  color: var(--accent-light);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.2s;
+}
+
+.export-btn:active {
+  background: rgba(124,108,252,0.2);
+}
+
+/* ===== GRILLE SECTIONS ===== */
 .sections-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 13px;
 }
 
 .section-card {
@@ -76,25 +165,26 @@ html, body {
 
 .section-card:active {
   transform: scale(0.97);
-  box-shadow: 0 4px 20px rgba(124, 108, 252, 0.2);
+  box-shadow: 0 4px 20px rgba(124,108,252,0.25);
   border-color: var(--accent);
 }
 
-.card-icon { font-size: 1.6rem; }
+.card-icon { font-size: 1.7rem; }
 
 .card-name {
   flex: 1;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text);
 }
 
 .card-count {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   background: rgba(255,255,255,0.05);
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
+  font-weight: 500;
 }
 
 /* ===== VUE SECTION ===== */
@@ -109,17 +199,22 @@ html, body {
   background: none;
   border: none;
   color: var(--accent);
-  font-size: 1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   padding: 8px 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* ===== LISTE DES RAPPELS ===== */
+#section-view-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+/* ===== RAPPELS ===== */
 .rappels-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 13px;
 }
 
 .rappel-card {
@@ -131,7 +226,7 @@ html, body {
   transition: transform 0.15s, border-color 0.15s;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .rappel-card:active {
@@ -140,23 +235,24 @@ html, body {
 }
 
 .rappel-card h4 {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text);
 }
 
-.rappel-card .rappel-meta {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+.rappel-meta {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
-.rappel-card .rappel-meta span {
+.rappel-meta span {
+  font-size: 0.82rem;
+  color: var(--text-muted);
   background: rgba(255,255,255,0.05);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 20px;
+  font-weight: 500;
 }
 
 /* ===== MODALS ===== */
@@ -173,15 +269,21 @@ html, body {
 .rappel-modal-content {
   background: #1a1a25;
   border-radius: 24px 24px 0 0;
-  padding: 28px 24px 48px;
+  padding: 32px 24px 52px;
   width: 100%;
   max-width: 600px;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.rappel-modal-content h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  padding-right: 32px;
 }
 
 .close-modal-btn {
@@ -192,8 +294,8 @@ html, body {
   border: none;
   color: var(--text-muted);
   font-size: 1rem;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -202,51 +304,55 @@ html, body {
 }
 
 .modal-date, .modal-days {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--accent-light);
+  font-weight: 600;
 }
 
 .modal-description {
   color: var(--text);
-  line-height: 1.7;
-  font-size: 0.95rem;
+  line-height: 1.75;
+  font-size: 1rem;
   margin-top: 4px;
 }
 
-/* ===== FORMULAIRE AJOUT ===== */
+/* ===== FORMULAIRE ===== */
 .form-label {
   font-size: 0.85rem;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .required { color: var(--danger); }
-.optional { color: var(--text-muted); font-weight: 400; text-transform: none; }
+.optional {
+  color: var(--text-muted);
+  font-weight: 400;
+  text-transform: none;
+  font-size: 0.82rem;
+}
 
 .form-input {
   width: 100%;
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--card-border);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 13px 15px;
   color: var(--text);
-  font-size: 0.95rem;
+  font-size: 1rem;
   outline: none;
   transition: border-color 0.2s;
   font-family: inherit;
 }
 
-.form-input:focus {
-  border-color: var(--accent);
-}
+.form-input:focus { border-color: var(--accent); }
 
-select.form-input option {
-  background: #1a1a25;
-}
+select.form-input option { background: #1a1a25; }
 
-/* ===== JOURS DE LA SEMAINE ===== */
+textarea.form-input { resize: none; }
+
+/* ===== JOURS ===== */
 .days-picker {
   display: flex;
   gap: 8px;
@@ -258,31 +364,33 @@ select.form-input option {
   border: 1px solid var(--card-border);
   border-radius: 10px;
   color: var(--text-muted);
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  padding: 9px 13px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
+  font-family: inherit;
 }
 
 .day-btn.selected {
   background: var(--accent);
   border-color: var(--accent);
   color: #fff;
-  font-weight: 700;
 }
 
 /* ===== BOUTON ENREGISTRER ===== */
 .save-btn {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #a89dff);
   border: none;
   border-radius: 14px;
   color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 15px;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 6px;
   transition: opacity 0.2s;
+  font-family: inherit;
 }
 
 .save-btn:active { opacity: 0.8; }
@@ -290,22 +398,83 @@ select.form-input option {
 /* ===== BOUTON + FLOTTANT ===== */
 .fab {
   position: fixed;
-  bottom: 28px;
+  bottom: 30px;
   right: 24px;
-  width: 60px;
-  height: 60px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #a89dff);
   color: #fff;
-  font-size: 2rem;
+  font-size: 2.2rem;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(124, 108, 252, 0.5);
+  box-shadow: 0 4px 28px rgba(124,108,252,0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 150;
   transition: transform 0.15s;
+  font-family: inherit;
 }
 
 .fab:active { transform: scale(0.92); }
+
+/* ===== APERÇU RAPIDE ===== */
+.apercu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 180;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.apercu-box {
+  background: #1a1a25;
+  border-radius: 20px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid rgba(124,108,252,0.3);
+  box-shadow: 0 8px 40px rgba(124,108,252,0.2);
+}
+
+.apercu-box h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--accent-light);
+}
+
+.apercu-item {
+  font-size: 0.95rem;
+  color: var(--text);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--card-border);
+  font-weight: 500;
+}
+
+.apercu-item:last-child { border-bottom: none; }
+
+.apercu-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.apercu-close {
+  margin-top: 16px;
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  padding: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+}
