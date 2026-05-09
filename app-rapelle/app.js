@@ -537,13 +537,7 @@ showPage('home');
 
 // ===== DÉMARRER LE SERVICE WORKER (PWA) =====
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/dev/app-rapelle/sw.js')
-      .then(registration => {
-        console.log('SW enregistré !', registration.scope);
-      })
-      .catch(err => {
-        console.error('Erreur SW :', err);
-      });
-  });
+  navigator.serviceWorker.register('./sw.js')
+    .then(registration => console.log('SW enregistré !'))
+    .catch(erreur => console.error('Erreur SW :', erreur));
 }
