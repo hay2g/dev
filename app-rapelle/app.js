@@ -250,6 +250,7 @@ document.getElementById('save-rappel-btn').addEventListener('click', () => {
   addModal.classList.add('hidden');
   updateCounts();
   planifierNotification(rappel);
+  envoyerRappelsAuSW();
 
   if (currentSection === section) renderRappels(section);
 });
@@ -331,6 +332,7 @@ document.getElementById('import-input').addEventListener('change', function(e) {
       saveRappels(fusion);
       updateCounts();
       fusion.forEach(r => planifierNotification(r));
+      envoyerRappelsAuSW();
 
       alert(`✅ ${nouveaux.length} rappel(s) importé(s) avec succès !`);
 
@@ -365,6 +367,7 @@ function demanderPermission() {
         btn.classList.add('active');
         notifQuotidienne();
         replanifierTous();
+        envoyerRappelsAuSW();
       } else {
         btn.textContent = '❌ Notifications refusées';
       }
@@ -374,7 +377,7 @@ function demanderPermission() {
 
 function envoyerNotif(titre, body) {
   if (Notification.permission === 'granted') {
-    new Notification(titre, { body, icon: '/icon-192.png' });
+    new Notification(titre, { body, icon: '/dev/app-rapelle/icon-192.png' });
   }
 }
 
@@ -454,6 +457,16 @@ function replanifierTous() {
   getRappels().forEach(r => planifierNotification(r));
 }
 
+// ===== ENVOI AU SERVICE WORKER =====
+function envoyerRappelsAuSW() {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'PLANIFIER',
+      rappels: getRappels()
+    });
+  }
+}
+
 // ===== NOTIF QUOTIDIENNE =====
 function notifQuotidienne() {
   if (Notification.permission !== 'granted') return;
@@ -467,12 +480,57 @@ function notifQuotidienne() {
   }, target - now);
 }
 
+// ===== RAPPELS DU JOUR (bandeau visuel) =====
+function afficherRappelsDuJour() {
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+  const jourActuel = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][today.getDay()];
+
+  const rappels = getRappels().filter(r => {
+    if (r.date === dateStr) return true;
+    if (!r.date && r.jours && r.jours.includes(jourActuel)) return true;
+    return false;
+  });
+
+  const existing = document.getElementById('bandeau-jour');
+  if (existing) existing.remove();
+  if (rappels.length === 0) return;
+
+  const bandeau = document.createElement('div');
+  bandeau.id = 'bandeau-jour';
+  bandeau.style.cssText = `
+    background: linear-gradient(135deg, rgba(124,108,252,0.2), rgba(168,157,255,0.1));
+    border: 1px solid rgba(124,108,252,0.4);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    cursor: pointer;
+  `;
+
+  bandeau.innerHTML = `
+    <div style="font-size:0.8rem;color:var(--accent-light);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;">
+      📅 Aujourd'hui — ${rappels.length} rappel${rappels.length > 1 ? 's' : ''}
+    </div>
+    ${rappels.slice(0, 3).map(r => `
+      <div style="font-size:0.95rem;color:var(--text);padding:4px 0;font-weight:600;">
+        • ${r.titre} ${r.heure ? '<span style="color:var(--text-muted);font-size:0.85rem;">à ' + r.heure + '</span>' : ''}
+      </div>
+    `).join('')}
+    ${rappels.length > 3 ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">+ ${rappels.length - 3} autre(s)...</div>` : ''}
+  `;
+
+  const importExportRow = document.querySelector('.import-export-row');
+  importExportRow.parentNode.insertBefore(bandeau, importExportRow);
+}
+
 // ===== INIT =====
 initStorage();
 demanderPermission();
+afficherRappelsDuJour();
 if (Notification.permission === 'granted') {
   notifQuotidienne();
   replanifierTous();
+  envoyerRappelsAuSW();
 }
 updateCounts();
 showPage('home');
