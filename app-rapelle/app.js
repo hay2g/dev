@@ -1,3 +1,19 @@
+// ===== INITIALISATION FIREBASE =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAb9uhzicDTzXXSfUOaDghW3HvM-xQd84M",
+  authDomain: "agenda-papa-2808e.firebaseapp.com",
+  projectId: "agenda-papa-2808e",
+  storageBucket: "agenda-papa-2808e.firebasestorage.app",
+  messagingSenderId: "217480127008",
+  appId: "1:217480127008:web:48ecdee5478512d8f19245"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // ===== SECTIONS =====
 const SECTIONS = {
   quotidien: "🏠 Vie quotidienne",
@@ -27,8 +43,15 @@ function getRappels() {
 
 function saveRappels(rappels) {
   try {
+    // 1. Sauvegarde sur le téléphone (comme avant, pour que ce soit rapide)
     localStorage.setItem('rappels', JSON.stringify(rappels));
     sessionStorage.setItem('rappels_backup', JSON.stringify(rappels));
+    
+    // 2. NOUVEAU : Sauvegarde invisible sur Firebase !
+    setDoc(doc(db, "agendas", "papa"), { liste: rappels })
+      .then(() => console.log("☁️ Sauvegardé sur le Cloud Firebase !"))
+      .catch(e => console.error("Erreur Firebase :", e));
+
   } catch(e) {
     console.error('Erreur sauvegarde:', e);
   }
@@ -541,3 +564,25 @@ if ('serviceWorker' in navigator) {
     .then(registration => console.log('SW enregistré !'))
     .catch(erreur => console.error('Erreur SW :', erreur));
 }
+
+// ===== RÉCUPÉRATION DEPUIS FIREBASE =====
+async function syncFirebase() {
+  try {
+    const docSnap = await getDoc(doc(db, "agendas", "papa"));
+    if (docSnap.exists()) {
+      const donnees = docSnap.data();
+      if (donnees.liste && donnees.liste.length > 0) {
+        // Met à jour le téléphone avec les données d'internet
+        localStorage.setItem('rappels', JSON.stringify(donnees.liste));
+        updateCounts();
+        afficherRappelsDuJour();
+        console.log("☁️ Données récupérées depuis Firebase !");
+      }
+    }
+  } catch(e) {
+    console.log("Mode hors ligne ou erreur :", e);
+  }
+}
+
+// Lancer la synchro au démarrage
+syncFirebase();
