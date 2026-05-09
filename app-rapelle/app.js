@@ -28,7 +28,6 @@ function getRappels() {
 function saveRappels(rappels) {
   try {
     localStorage.setItem('rappels', JSON.stringify(rappels));
-    // Double sauvegarde dans sessionStorage
     sessionStorage.setItem('rappels_backup', JSON.stringify(rappels));
   } catch(e) {
     console.error('Erreur sauvegarde:', e);
@@ -39,7 +38,6 @@ function getRappelsBySection(sectionId) {
   return getRappels().filter(r => r.section === sectionId);
 }
 
-// Récupération depuis backup si localStorage vide
 function initStorage() {
   const local = localStorage.getItem('rappels');
   const session = sessionStorage.getItem('rappels_backup');
@@ -102,12 +100,10 @@ function renderRappels(sectionId) {
       ${meta ? `<div class="rappel-meta">${meta}</div>` : ''}
     `;
 
-    // Tap sur le titre ou meta = ouvrir détail
     card.querySelector('h4').addEventListener('click', () => openRappelModal(rappel));
     const metaEl = card.querySelector('.rappel-meta');
     if (metaEl) metaEl.addEventListener('click', () => openRappelModal(rappel));
 
-    // Bouton supprimer — uniquement dans la section
     card.querySelector('.delete-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       if (confirm(`Supprimer "${rappel.titre}" ?`)) {
@@ -216,6 +212,15 @@ addModal.addEventListener('click', function(e) {
 
 document.querySelectorAll('.day-btn').forEach(btn => {
   btn.addEventListener('click', () => btn.classList.toggle('selected'));
+});
+
+// ===== BOUTONS EFFACER DATE & HEURE =====
+document.getElementById('clear-date-btn').addEventListener('click', () => {
+  document.getElementById('add-date').value = '';
+});
+
+document.getElementById('clear-heure-btn').addEventListener('click', () => {
+  document.getElementById('add-heure').value = '';
 });
 
 // ===== ENREGISTRER RAPPEL =====
@@ -368,14 +373,12 @@ function planifierNotification(rappel) {
   const now = new Date();
   const { h, m } = getHeureRappel(rappel);
 
-  // CAS 1 — Date seulement
   if (rappel.date && rappel.jours.length === 0) {
     const target = new Date(`${rappel.date}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
     const delay = target - now;
     if (delay > 0) setTimeout(() => envoyerNotif(`📅 ${rappel.titre}`, rappel.description), delay);
   }
 
-  // CAS 2 — Date + jours
   if (rappel.date && rappel.jours.length > 0) {
     const datelimite = new Date(rappel.date + 'T23:59:59');
     function planifierProchainJour() {
@@ -403,7 +406,6 @@ function planifierNotification(rappel) {
     planifierProchainJour();
   }
 
-  // CAS 3 — Jours seulement toute l'année
   if (!rappel.date && rappel.jours.length > 0) {
     function planifierJourRecurrent() {
       const maintenant = new Date();

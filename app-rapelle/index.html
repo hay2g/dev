@@ -126,10 +126,16 @@
       <textarea id="add-description" class="form-input" rows="3" placeholder="Détails du rappel..."></textarea>
 
       <label class="form-label">Date <span class="optional">(optionnel)</span></label>
-      <input id="add-date" type="date" class="form-input" />
+      <div class="date-row">
+        <input id="add-date" type="date" class="form-input" />
+        <button type="button" id="clear-date-btn" class="clear-date-btn">✕</button>
+      </div>
 
       <label class="form-label">Heure <span class="optional">(optionnel)</span></label>
-      <input id="add-heure" type="time" class="form-input" />
+      <div class="date-row">
+        <input id="add-heure" type="time" class="form-input" />
+        <button type="button" id="clear-heure-btn" class="clear-date-btn">✕</button>
+      </div>
 
       <label class="form-label">Jours <span class="optional">(optionnel)</span></label>
       <div class="days-picker">
