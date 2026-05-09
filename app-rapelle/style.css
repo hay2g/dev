@@ -126,6 +126,31 @@ html, body {
   letter-spacing: -0.5px;
 }
 
+/* ===== BOUTON NOTIFICATIONS ===== */
+.notif-btn {
+  width: 100%;
+  background: rgba(124,108,252,0.15);
+  border: 1px solid rgba(124,108,252,0.4);
+  border-radius: 14px;
+  color: var(--accent-light);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.notif-btn.active {
+  background: rgba(0,200,100,0.1);
+  border-color: rgba(0,200,100,0.4);
+  color: #4caf7d;
+}
+
 /* ===== IMPORT/EXPORT ===== */
 .import-export-row {
   display: flex;
@@ -405,7 +430,7 @@ textarea.form-input {
   font-size: 16px;
 }
 
-/* ===== DATE ROW (bouton effacer) ===== */
+/* ===== DATE ROW ===== */
 .date-row {
   display: flex;
   align-items: center;

@@ -344,14 +344,32 @@ document.getElementById('import-input').addEventListener('change', function(e) {
 
 // ===== NOTIFICATIONS =====
 function demanderPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
+  const btn = document.getElementById('notif-btn');
+  if (!btn) return;
+
+  if (Notification.permission === 'granted') {
+    btn.textContent = '✅ Notifications activées';
+    btn.classList.add('active');
+    return;
+  }
+
+  if (Notification.permission === 'denied') {
+    btn.textContent = '❌ Notifications bloquées (réglages iPhone)';
+    return;
+  }
+
+  btn.addEventListener('click', () => {
     Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
+        btn.textContent = '✅ Notifications activées';
+        btn.classList.add('active');
         notifQuotidienne();
         replanifierTous();
+      } else {
+        btn.textContent = '❌ Notifications refusées';
       }
     });
-  }
+  });
 }
 
 function envoyerNotif(titre, body) {
