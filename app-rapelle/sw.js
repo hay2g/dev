@@ -1,10 +1,10 @@
-const CACHE_NAME = 'agenda-papa-v4';
+const CACHE_NAME = 'agenda-papa-v5';
 const FILES = [
-  '/app-rapelle/',
-  '/app-rapelle/index.html',
-  '/app-rapelle/style.css',
-  '/app-rapelle/app.js',
-  '/app-rapelle/manifest.json'
+  '/dev/app-rapelle/',
+  '/dev/app-rapelle/index.html',
+  '/dev/app-rapelle/style.css',
+  '/dev/app-rapelle/app.js',
+  '/dev/app-rapelle/manifest.json'
 ];
 
 self.addEventListener('install', e => {
