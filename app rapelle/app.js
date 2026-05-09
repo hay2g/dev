@@ -18,15 +18,34 @@ const JOURS_MAP = {
 
 // ===== LOCALSTORAGE =====
 function getRappels() {
-  return JSON.parse(localStorage.getItem('rappels') || '[]');
+  try {
+    return JSON.parse(localStorage.getItem('rappels') || '[]');
+  } catch(e) {
+    return [];
+  }
 }
 
 function saveRappels(rappels) {
-  localStorage.setItem('rappels', JSON.stringify(rappels));
+  try {
+    localStorage.setItem('rappels', JSON.stringify(rappels));
+    // Double sauvegarde dans sessionStorage
+    sessionStorage.setItem('rappels_backup', JSON.stringify(rappels));
+  } catch(e) {
+    console.error('Erreur sauvegarde:', e);
+  }
 }
 
 function getRappelsBySection(sectionId) {
   return getRappels().filter(r => r.section === sectionId);
+}
+
+// Récupération depuis backup si localStorage vide
+function initStorage() {
+  const local = localStorage.getItem('rappels');
+  const session = sessionStorage.getItem('rappels_backup');
+  if (!local && session) {
+    localStorage.setItem('rappels', session);
+  }
 }
 
 // ===== COMPTEURS =====
@@ -55,6 +74,7 @@ function openSection(sectionId) {
   showPage('section-view');
 }
 
+// ===== AFFICHER RAPPELS =====
 function renderRappels(sectionId) {
   const list = document.getElementById('rappels-list');
   const rappels = getRappelsBySection(sectionId);
@@ -75,10 +95,29 @@ function renderRappels(sectionId) {
     if (rappel.jours && rappel.jours.length > 0) meta += `<span>🔁 ${rappel.jours.join(', ')}</span>`;
 
     card.innerHTML = `
-      <h4>${rappel.titre}</h4>
+      <div class="rappel-card-top">
+        <h4>${rappel.titre}</h4>
+        <button class="delete-btn" data-id="${rappel.id}">🗑️</button>
+      </div>
       ${meta ? `<div class="rappel-meta">${meta}</div>` : ''}
     `;
-    card.addEventListener('click', () => openRappelModal(rappel));
+
+    // Tap sur le titre ou meta = ouvrir détail
+    card.querySelector('h4').addEventListener('click', () => openRappelModal(rappel));
+    const metaEl = card.querySelector('.rappel-meta');
+    if (metaEl) metaEl.addEventListener('click', () => openRappelModal(rappel));
+
+    // Bouton supprimer — uniquement dans la section
+    card.querySelector('.delete-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm(`Supprimer "${rappel.titre}" ?`)) {
+        const tous = getRappels().filter(r => r.id !== rappel.id);
+        saveRappels(tous);
+        renderRappels(sectionId);
+        updateCounts();
+      }
+    });
+
     list.appendChild(card);
   });
 }
@@ -213,11 +252,7 @@ document.getElementById('save-rappel-btn').addEventListener('click', () => {
 // ===== EXPORT CSV =====
 document.getElementById('export-btn').addEventListener('click', () => {
   const rappels = getRappels();
-
-  if (rappels.length === 0) {
-    alert('Aucun rappel à exporter !');
-    return;
-  }
+  if (rappels.length === 0) { alert('Aucun rappel à exporter !'); return; }
 
   const headers = ['id', 'section', 'titre', 'description', 'date', 'heure', 'jours'];
   const csvRows = [headers.join(';')];
@@ -257,12 +292,11 @@ document.getElementById('import-input').addEventListener('change', function(e) {
     try {
       const text = event.target.result;
       const lines = text.split('\n').filter(l => l.trim() !== '');
-      const headers = lines[0].split(';');
-
       const rappels = [];
+
       for (let i = 1; i < lines.length; i++) {
         const values = lines[i].match(/(".*?"|[^;]+)(?=;|$)/g) || [];
-        const clean = v => v ? v.replace(/^"|"$/g, '').replace(/""/g, '"') : '';
+        const clean = v => v ? v.replace(/^"|"$/g, '').replace(/""/g, '"').trim() : '';
 
         const rappel = {
           id: parseInt(clean(values[0])) || Date.now() + i,
@@ -274,7 +308,6 @@ document.getElementById('import-input').addEventListener('change', function(e) {
           jours: clean(values[6]) ? clean(values[6]).split(',').filter(j => j.trim()) : []
         };
 
-        // Vérifier que la section existe
         if (rappel.titre && SECTIONS[rappel.section]) {
           rappels.push(rappel);
         }
@@ -285,7 +318,6 @@ document.getElementById('import-input').addEventListener('change', function(e) {
         return;
       }
 
-      // Fusionner avec les rappels existants sans doublons
       const existants = getRappels();
       const idsExistants = new Set(existants.map(r => r.id));
       const nouveaux = rappels.filter(r => !idsExistants.has(r.id));
@@ -293,14 +325,12 @@ document.getElementById('import-input').addEventListener('change', function(e) {
 
       saveRappels(fusion);
       updateCounts();
-
-      // Replanifier toutes les notifs
       fusion.forEach(r => planifierNotification(r));
 
       alert(`✅ ${nouveaux.length} rappel(s) importé(s) avec succès !`);
 
-    } catch (err) {
-      alert('Erreur lors de la lecture du fichier. Vérifiez que c\'est bien un CSV exporté depuis l\'app.');
+    } catch(err) {
+      alert('Erreur lors de la lecture du fichier.');
     }
   };
   reader.readAsText(file, 'UTF-8');
@@ -342,9 +372,7 @@ function planifierNotification(rappel) {
   if (rappel.date && rappel.jours.length === 0) {
     const target = new Date(`${rappel.date}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
     const delay = target - now;
-    if (delay > 0) {
-      setTimeout(() => envoyerNotif(`📅 ${rappel.titre}`, rappel.description), delay);
-    }
+    if (delay > 0) setTimeout(() => envoyerNotif(`📅 ${rappel.titre}`, rappel.description), delay);
   }
 
   // CAS 2 — Date + jours
@@ -420,6 +448,7 @@ function notifQuotidienne() {
 }
 
 // ===== INIT =====
+initStorage();
 demanderPermission();
 if (Notification.permission === 'granted') {
   notifQuotidienne();

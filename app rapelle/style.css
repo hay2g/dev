@@ -34,7 +34,7 @@ html, body {
 
 .hidden { display: none !important; }
 
-/* ===== LOGO LIVRE FUTURISTE ===== */
+/* ===== LOGO ===== */
 .app-header {
   display: flex;
   align-items: center;
@@ -120,7 +120,9 @@ html, body {
   font-weight: 800;
   background: linear-gradient(135deg, var(--accent-light), #fff);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   letter-spacing: -0.5px;
 }
 
@@ -144,6 +146,9 @@ html, body {
   transition: background 0.2s;
   text-align: center;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .import-btn {
@@ -152,7 +157,8 @@ html, body {
   color: var(--text-muted);
 }
 
-.export-btn:active, .import-btn:active {
+.export-btn:active,
+.import-btn:active {
   opacity: 0.7;
 }
 
@@ -216,6 +222,7 @@ html, body {
   cursor: pointer;
   padding: 8px 0;
   font-weight: 700;
+  font-family: inherit;
 }
 
 #section-view-title {
@@ -247,11 +254,32 @@ html, body {
   border-color: var(--accent);
 }
 
+.rappel-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .rappel-card h4 {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--text);
+  flex: 1;
 }
+
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.delete-btn:active { opacity: 1; }
 
 .rappel-meta {
   display: flex;
@@ -314,6 +342,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: inherit;
 }
 
 .modal-date, .modal-days {
@@ -339,6 +368,7 @@ html, body {
 }
 
 .required { color: var(--danger); }
+
 .optional {
   color: var(--text-muted);
   font-weight: 400;
