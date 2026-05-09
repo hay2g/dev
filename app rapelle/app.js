@@ -71,6 +71,7 @@ function renderRappels(sectionId) {
 
     let meta = '';
     if (rappel.date) meta += `<span>📅 ${rappel.date}</span>`;
+    if (rappel.heure) meta += `<span>⏰ ${rappel.heure}</span>`;
     if (rappel.jours && rappel.jours.length > 0) meta += `<span>🔁 ${rappel.jours.join(', ')}</span>`;
 
     card.innerHTML = `
@@ -85,8 +86,12 @@ function renderRappels(sectionId) {
 // ===== MODAL DÉTAIL =====
 function openRappelModal(rappel) {
   document.getElementById('modal-title').textContent = rappel.titre;
-  document.getElementById('modal-date').textContent = rappel.date ? `📅 Date limite : ${rappel.date}` : '';
-  document.getElementById('modal-days').textContent = rappel.jours && rappel.jours.length > 0 ? `🔁 Jours : ${rappel.jours.join(', ')}` : '';
+  document.getElementById('modal-date').textContent = rappel.date
+    ? `📅 ${rappel.date}${rappel.heure ? ' à ' + rappel.heure : ''}`
+    : rappel.heure ? `⏰ ${rappel.heure}` : '';
+  document.getElementById('modal-days').textContent = rappel.jours && rappel.jours.length > 0
+    ? `🔁 Jours : ${rappel.jours.join(', ')}${rappel.heure ? ' à ' + rappel.heure : ''}`
+    : '';
   document.getElementById('modal-description').textContent = rappel.description;
   document.getElementById('rappel-modal').classList.remove('hidden');
 }
@@ -156,6 +161,7 @@ document.getElementById('fab').addEventListener('click', () => {
   document.getElementById('add-titre').value = '';
   document.getElementById('add-description').value = '';
   document.getElementById('add-date').value = '';
+  document.getElementById('add-heure').value = '';
   document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
   if (currentSection) document.getElementById('add-section').value = currentSection;
   addModal.classList.remove('hidden');
@@ -178,6 +184,7 @@ document.getElementById('save-rappel-btn').addEventListener('click', () => {
   const titre = document.getElementById('add-titre').value.trim();
   const description = document.getElementById('add-description').value.trim();
   const date = document.getElementById('add-date').value;
+  const heure = document.getElementById('add-heure').value;
   const section = document.getElementById('add-section').value;
   const jours = [...document.querySelectorAll('.day-btn.selected')].map(b => b.dataset.day);
 
@@ -188,6 +195,7 @@ document.getElementById('save-rappel-btn').addEventListener('click', () => {
     id: Date.now(),
     section, titre, description,
     date: date || null,
+    heure: heure || null,
     jours: jours.length > 0 ? jours : []
   };
 
@@ -202,10 +210,112 @@ document.getElementById('save-rappel-btn').addEventListener('click', () => {
   if (currentSection === section) renderRappels(section);
 });
 
-// ===== NOTIFICATIONS INTELLIGENTES =====
+// ===== EXPORT CSV =====
+document.getElementById('export-btn').addEventListener('click', () => {
+  const rappels = getRappels();
+
+  if (rappels.length === 0) {
+    alert('Aucun rappel à exporter !');
+    return;
+  }
+
+  const headers = ['id', 'section', 'titre', 'description', 'date', 'heure', 'jours'];
+  const csvRows = [headers.join(';')];
+
+  rappels.forEach(r => {
+    const values = [
+      r.id,
+      r.section,
+      `"${(r.titre || '').replace(/"/g, '""')}"`,
+      `"${(r.description || '').replace(/"/g, '""')}"`,
+      r.date || '',
+      r.heure || '',
+      `"${(r.jours || []).join(',')}"`
+    ];
+    csvRows.push(values.join(';'));
+  });
+
+  const csvContent = '\uFEFF' + csvRows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rappels-papa.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ===== IMPORT CSV =====
+document.getElementById('import-input').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    try {
+      const text = event.target.result;
+      const lines = text.split('\n').filter(l => l.trim() !== '');
+      const headers = lines[0].split(';');
+
+      const rappels = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].match(/(".*?"|[^;]+)(?=;|$)/g) || [];
+        const clean = v => v ? v.replace(/^"|"$/g, '').replace(/""/g, '"') : '';
+
+        const rappel = {
+          id: parseInt(clean(values[0])) || Date.now() + i,
+          section: clean(values[1]),
+          titre: clean(values[2]),
+          description: clean(values[3]),
+          date: clean(values[4]) || null,
+          heure: clean(values[5]) || null,
+          jours: clean(values[6]) ? clean(values[6]).split(',').filter(j => j.trim()) : []
+        };
+
+        // Vérifier que la section existe
+        if (rappel.titre && SECTIONS[rappel.section]) {
+          rappels.push(rappel);
+        }
+      }
+
+      if (rappels.length === 0) {
+        alert('Aucun rappel valide trouvé dans le fichier.');
+        return;
+      }
+
+      // Fusionner avec les rappels existants sans doublons
+      const existants = getRappels();
+      const idsExistants = new Set(existants.map(r => r.id));
+      const nouveaux = rappels.filter(r => !idsExistants.has(r.id));
+      const fusion = [...existants, ...nouveaux];
+
+      saveRappels(fusion);
+      updateCounts();
+
+      // Replanifier toutes les notifs
+      fusion.forEach(r => planifierNotification(r));
+
+      alert(`✅ ${nouveaux.length} rappel(s) importé(s) avec succès !`);
+
+    } catch (err) {
+      alert('Erreur lors de la lecture du fichier. Vérifiez que c\'est bien un CSV exporté depuis l\'app.');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+  this.value = '';
+});
+
+// ===== NOTIFICATIONS =====
 function demanderPermission() {
   if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        notifQuotidienne();
+        replanifierTous();
+      }
+    });
   }
 }
 
@@ -215,23 +325,29 @@ function envoyerNotif(titre, body) {
   }
 }
 
+function getHeureRappel(rappel) {
+  if (rappel.heure) {
+    const [h, m] = rappel.heure.split(':').map(Number);
+    return { h, m };
+  }
+  return { h: 9, m: 0 };
+}
+
 function planifierNotification(rappel) {
   if (Notification.permission !== 'granted') return;
-
   const now = new Date();
+  const { h, m } = getHeureRappel(rappel);
 
-  // CAS 1 — Date seulement → notif le jour J à 9h
+  // CAS 1 — Date seulement
   if (rappel.date && rappel.jours.length === 0) {
-    const target = new Date(rappel.date + 'T09:00:00');
+    const target = new Date(`${rappel.date}T${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:00`);
     const delay = target - now;
     if (delay > 0) {
-      setTimeout(() => {
-        envoyerNotif(`📅 ${rappel.titre}`, rappel.description);
-      }, delay);
+      setTimeout(() => envoyerNotif(`📅 ${rappel.titre}`, rappel.description), delay);
     }
   }
 
-  // CAS 2 — Date + jours → notif les jours choisis à 9h jusqu'à la date
+  // CAS 2 — Date + jours
   if (rappel.date && rappel.jours.length > 0) {
     const datelimite = new Date(rappel.date + 'T23:59:59');
     function planifierProchainJour() {
@@ -245,7 +361,7 @@ function planifierNotification(rappel) {
         if (diff === 0) diff = 7;
         const prochaine = new Date(maintenant);
         prochaine.setDate(prochaine.getDate() + diff);
-        prochaine.setHours(9, 0, 0, 0);
+        prochaine.setHours(h, m, 0, 0);
         const delay = prochaine - maintenant;
         if (delay < minDelay) minDelay = delay;
       });
@@ -259,7 +375,7 @@ function planifierNotification(rappel) {
     planifierProchainJour();
   }
 
-  // CAS 3 — Jours seulement → notif ces jours toute l'année à 9h
+  // CAS 3 — Jours seulement toute l'année
   if (!rappel.date && rappel.jours.length > 0) {
     function planifierJourRecurrent() {
       const maintenant = new Date();
@@ -271,7 +387,7 @@ function planifierNotification(rappel) {
         if (diff === 0) diff = 7;
         const prochaine = new Date(maintenant);
         prochaine.setDate(prochaine.getDate() + diff);
-        prochaine.setHours(9, 0, 0, 0);
+        prochaine.setHours(h, m, 0, 0);
         const delay = prochaine - maintenant;
         if (delay < minDelay) minDelay = delay;
       });
@@ -286,56 +402,28 @@ function planifierNotification(rappel) {
   }
 }
 
-// Replanifier tous les rappels au démarrage
 function replanifierTous() {
   getRappels().forEach(r => planifierNotification(r));
 }
 
-// ===== NOTIFICATION QUOTIDIENNE =====
+// ===== NOTIF QUOTIDIENNE =====
 function notifQuotidienne() {
   if (Notification.permission !== 'granted') return;
   const now = new Date();
   const target = new Date();
   target.setHours(8, 0, 0, 0);
   if (now >= target) target.setDate(target.getDate() + 1);
-  const delay = target - now;
   setTimeout(() => {
     envoyerNotif('📖 Bonjour !', "N'oublie pas de consulter tes rappels aujourd'hui.");
     notifQuotidienne();
-  }, delay);
+  }, target - now);
 }
-
-// ===== EXPORT EXCEL =====
-document.getElementById('export-btn').addEventListener('click', () => {
-  const rappels = getRappels();
-  if (rappels.length === 0) {
-    alert('Aucun rappel à exporter !');
-    return;
-  }
-
-  const data = rappels.map(r => ({
-    'Section': SECTIONS[r.section] || r.section,
-    'Titre': r.titre,
-    'Description': r.description,
-    'Date': r.date || 'Pas de date',
-    'Jours': r.jours.length > 0 ? r.jours.join(', ') : 'Tous les jours'
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Rappels');
-
-  // Style colonnes
-  ws['!cols'] = [
-    { wch: 22 }, { wch: 28 }, { wch: 40 }, { wch: 14 }, { wch: 20 }
-  ];
-
-  XLSX.writeFile(wb, 'rappels-papa.xlsx');
-});
 
 // ===== INIT =====
 demanderPermission();
-notifQuotidienne();
-replanifierTous();
+if (Notification.permission === 'granted') {
+  notifQuotidienne();
+  replanifierTous();
+}
 updateCounts();
 showPage('home');

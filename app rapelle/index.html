@@ -85,16 +85,51 @@
     <div id="rappels-list" class="rappels-list"></div>
   </div>
 
-  <!-- MODAL DÉTAIL RAPPEL -->
-  <div id="rappel-modal" class="rappel-modal hidden">
-    <div class="rappel-modal-content">
-      <button id="close-modal-btn" class="close-modal-btn">✕</button>
-      <h3 id="modal-title"></h3>
-      <p id="modal-date" class="modal-date"></p>
-      <p id="modal-days" class="modal-days"></p>
-      <p id="modal-description" class="modal-description"></p>
+  <!-- MODAL AJOUT RAPPEL -->
+<div id="add-modal" class="rappel-modal hidden">
+  <div class="rappel-modal-content">
+    <button id="close-add-btn" class="close-modal-btn">✕</button>
+    <h3>Nouveau rappel</h3>
+
+    <label class="form-label">Section</label>
+    <select id="add-section" class="form-input">
+      <option value="quotidien">🏠 Vie quotidienne</option>
+      <option value="travail">💼 Travail</option>
+      <option value="projets">📋 Projets</option>
+      <option value="relations">👥 Relations</option>
+      <option value="divers">📦 Divers</option>
+      <option value="alire">📖 À lire tous les jours</option>
+      <option value="sport">🏋️ Sport</option>
+      <option value="formation">🎓 Formation</option>
+      <option value="zikr">🤲 Zikr</option>
+    </select>
+
+    <label class="form-label">Titre <span class="required">*</span></label>
+    <input id="add-titre" type="text" class="form-input" placeholder="Ex : Appeler le médecin" />
+
+    <label class="form-label">Description <span class="required">*</span></label>
+    <textarea id="add-description" class="form-input" rows="3" placeholder="Détails du rappel..."></textarea>
+
+    <label class="form-label">Date <span class="optional">(optionnel)</span></label>
+    <input id="add-date" type="date" class="form-input" />
+
+    <label class="form-label">Heure du rappel <span class="optional">(optionnel)</span></label>
+    <input id="add-heure" type="time" class="form-input" />
+
+    <label class="form-label">Jours de la semaine <span class="optional">(optionnel)</span></label>
+    <div class="days-picker">
+      <button class="day-btn" data-day="Lun">Lun</button>
+      <button class="day-btn" data-day="Mar">Mar</button>
+      <button class="day-btn" data-day="Mer">Mer</button>
+      <button class="day-btn" data-day="Jeu">Jeu</button>
+      <button class="day-btn" data-day="Ven">Ven</button>
+      <button class="day-btn" data-day="Sam">Sam</button>
+      <button class="day-btn" data-day="Dim">Dim</button>
     </div>
+
+    <button id="save-rappel-btn" class="save-btn">✅ Enregistrer</button>
   </div>
+</div>
 
   <!-- MODAL AJOUT RAPPEL -->
   <div id="add-modal" class="rappel-modal hidden">
