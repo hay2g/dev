@@ -534,3 +534,16 @@ if (Notification.permission === 'granted') {
 }
 updateCounts();
 showPage('home');
+
+// ===== DÉMARRER LE SERVICE WORKER (PWA) =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/dev/app-rapelle/sw.js')
+      .then(registration => {
+        console.log('SW enregistré !', registration.scope);
+      })
+      .catch(err => {
+        console.error('Erreur SW :', err);
+      });
+  });
+}
